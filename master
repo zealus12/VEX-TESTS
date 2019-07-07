@@ -20,14 +20,10 @@
 
 void opcontrol() {
 	Controller master(E_CONTROLLER_MASTER);
-  Motor motor1(2), Fleft(10), Fright(11), Bleft(12), Bright(13) ;
-  bool Intake_toggle = false, Expand_toggle = false;
+  Motor Fleft(1), Fright(10), Bleft(11), Bright(20);
   lcd::initialize();
-  bool Intake_button = false, Expand_button = false, buttonLst = false, buttonLst2 = false;
 
   while (true) {
-    Expand_button = master.get_digital(E_CONTROLLER_DIGITAL_L2);
-    Intake_button = master.get_digital(E_CONTROLLER_DIGITAL_L1);
     int x = master.get_analog(E_CONTROLLER_ANALOG_LEFT_X);
     int y = master.get_analog(E_CONTROLLER_ANALOG_LEFT_Y);
     int a = master.get_analog(E_CONTROLLER_ANALOG_RIGHT_X);
@@ -47,29 +43,6 @@ void opcontrol() {
     Bright.move(-x - y + a);
 
 
-    if (Intake_button && !buttonLst) {
-      if(!Intake_toggle)
-      {
-        motor1.move(127);
-      } else {
-        motor1.move(0);
-      }
-      Intake_toggle = !Intake_toggle;
-    }
-    buttonLst = Intake_button;
-
-    if (Expand_button && !buttonLst2) {
-      if(!Expand_toggle)
-      {
-        motor1.move_relative(-250, 100);
-      } else {
-        motor1.move_relative(250, 100);
-      }
-      Expand_toggle = !Expand_toggle;
-    }
-    buttonLst2 = Expand_button;
-
     delay(10);
-
   }
 }
