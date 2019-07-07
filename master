@@ -1,6 +1,75 @@
-echo "# VEX-TESTS" >> README.md
-git init
-git add README.md
-git commit -m "first commit"
-git remote add origin https://github.com/zealus12/VEX-TESTS.git
-git push -u origin master
+#include "main.h"
+#include <iostream>
+
+/**
+ * Runs the operator control code. This function will be started in its own task
+ * with the default priority and stack size whenever the robot is enabled via
+ * the Field Management System or the VEX Competition Switch in the operator
+ * control mode.
+ *
+ * If no competition control is connected, this function will run immediately
+ * following initialize().
+ *
+ * If the robot is disabled or communications is lost, the
+ * operator control task will be stopped. Re-enabling the robot will restart the
+ * task, not resume it from where it left off.
+ */
+
+ using namespace pros;
+
+
+void opcontrol() {
+	Controller master(E_CONTROLLER_MASTER);
+  Motor motor1(2), Fleft(10), Fright(11), Bleft(12), Bright(13) ;
+  bool Intake_toggle = false, Expand_toggle = false;
+  lcd::initialize();
+  bool Intake_button = false, Expand_button = false, buttonLst = false, buttonLst2 = false;
+
+  while (true) {
+    Expand_button = master.get_digital(E_CONTROLLER_DIGITAL_L2);
+    Intake_button = master.get_digital(E_CONTROLLER_DIGITAL_L1);
+    int x = master.get_analog(E_CONTROLLER_ANALOG_LEFT_X);
+    int y = master.get_analog(E_CONTROLLER_ANALOG_LEFT_Y);
+    int a = master.get_analog(E_CONTROLLER_ANALOG_RIGHT_X);
+
+    if(abs(x) <= 5)
+    x = 0;
+
+    if(abs(y) <= 5)
+    y = 0;
+
+    if(abs(a) <= 5)
+    a = 0;
+
+    Fleft.move(x + y + a);
+    Fright.move(x - y + a);
+    Bleft.move(-x + y + a);
+    Bright.move(-x - y + a);
+
+
+    if (Intake_button && !buttonLst) {
+      if(!Intake_toggle)
+      {
+        motor1.move(127);
+      } else {
+        motor1.move(0);
+      }
+      Intake_toggle = !Intake_toggle;
+    }
+    buttonLst = Intake_button;
+
+    if (Expand_button && !buttonLst2) {
+      if(!Expand_toggle)
+      {
+        motor1.move_relative(-250, 100);
+      } else {
+        motor1.move_relative(250, 100);
+      }
+      Expand_toggle = !Expand_toggle;
+    }
+    buttonLst2 = Expand_button;
+
+    delay(10);
+
+  }
+}
