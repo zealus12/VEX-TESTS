@@ -1,0 +1,88 @@
+#include "main.h"
+#include <iostream>
+/**
+ * Runs the operator control code. This function will be started in its own task
+ * with the default priority and stack size whenever the robot is enabled via
+ * the Field Management System or the VEX Competition Switch in the operator
+ * control mode.
+ *
+ * If no competition control is connected, this function will run immediately
+ * following initialize().
+ *
+ * If the robot is disabled or communications is lost, the
+ * operator control task will be stopped. Re-enabling the robot will restart the
+ * task, not resume it from where it left off.
+ */
+
+ using namespace pros;
+
+
+void opcontrol() {
+	Controller master(E_CONTROLLER_MASTER);
+  int i = 0;
+
+  Motor motor1(2), Fleft(1), Fright(10), Bleft(11), Bright(20) ;
+  lcd::initialize();
+  bool T= false, D = false, L = false, R = false, buttonLstR = false, buttonLstL = false, buttonLstD = false, buttonLstU = false;
+
+  while (true) {
+    T = master.get_digital(E_CONTROLLER_DIGITAL_X);
+    L = master.get_digital(E_CONTROLLER_DIGITAL_Y);
+    R = master.get_digital(E_CONTROLLER_DIGITAL_A);
+    D = master.get_digital(E_CONTROLLER_DIGITAL_B);
+    int x = master.get_analog(E_CONTROLLER_ANALOG_LEFT_X);
+    int y = master.get_analog(E_CONTROLLER_ANALOG_LEFT_Y);
+    int a = master.get_analog(E_CONTROLLER_ANALOG_RIGHT_X);
+
+    if(abs(x) <= 5)
+    x = 0;
+
+    if(abs(y) <= 5)
+    y = 0;
+
+    if(abs(a) <= 5)
+    a = 0;
+
+    if(i == 0){//T
+      Fleft.move(x + y + a);
+      Fright.move(x - y + a);
+      Bleft.move(-x + y + a);
+      Bright.move(-x - y + a);
+    }
+    if(i == 1){//L
+      Fleft.move(-x + y + a);
+      Fright.move(x + y + a);
+      Bleft.move(-x - y + a);
+      Bright.move(x - y + a);
+    }
+    if(i == 2){ //R
+      Fleft.move(x - y + a);
+      Fright.move(-x - y + a);
+      Bleft.move(x + y + a);
+      Bright.move(-x + y + a);
+    }
+    if(i == 3){//D
+      Fleft.move(-x - y + a);
+      Fright.move(-x + y + a);
+      Bleft.move(x - y + a);
+      Bright.move(x + y + a);
+    }
+    if(T && !buttonLstU){
+      i = 0;
+    }
+    if(D && ! buttonLstD){
+      i = 3;
+    }
+    if(L && ! buttonLstL){
+      i = 1;
+    }
+    if(R && ! buttonLstR){
+      i = 2;
+    }
+
+    buttonLstU = T;
+    buttonLstD = D;
+    buttonLstR = R;
+    buttonLstL = L;
+  }
+}
