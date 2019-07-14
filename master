@@ -42,7 +42,16 @@ void opcontrol() {
     Bleft.move(-x + y + a);
     Bright.move(-x - y + a);
 
-
+    if(Expand_button && Intake_button && !buttonLst && !buttonLst2){
+      lcd::print(0, "hit");
+      Fleft.move_relative(100, 127);
+      Fright.move_relative(100, 127);
+      Bleft.move_relative(100, 127);
+      Bright.move_relative(100, 127);
+      delay(1000);
+    }
     delay(10);
+    buttonLst2 = Expand_button;
+    buttonLst = Intake_button;
   }
 }
