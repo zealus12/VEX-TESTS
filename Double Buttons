@@ -1,6 +1,5 @@
 #include "main.h"
 #include <iostream>
-
 /**
  * Runs the operator control code. This function will be started in its own task
  * with the default priority and stack size whenever the robot is enabled via
@@ -20,10 +19,15 @@
 
 void opcontrol() {
 	Controller master(E_CONTROLLER_MASTER);
-  Motor Fleft(1), Fright(10), Bleft(11), Bright(20);
+  int i = 0;
+
+  Motor motor1(2), Fleft(1), Fright(10), Bleft(11), Bright(20) ;
   lcd::initialize();
+  bool Open_button = false, buttonLstO, Test_button = false, buttonLstT = false;
 
   while (true) {
+    Test_button = master.get_digital(E_CONTROLLER_DIGITAL_L2);
+    Open_button = master.get_digital(E_CONTROLLER_DIGITAL_L1);
     int x = master.get_analog(E_CONTROLLER_ANALOG_LEFT_X);
     int y = master.get_analog(E_CONTROLLER_ANALOG_LEFT_Y);
     int a = master.get_analog(E_CONTROLLER_ANALOG_RIGHT_X);
@@ -37,9 +41,25 @@ void opcontrol() {
     if(abs(a) <= 5)
     a = 0;
 
-    Fleft.move(x + y + a);
-    Fright.move(x - y + a);
-    Bleft.move(-x + y + a);
-    Bright.move(-x - y + a);
+
+      Fleft.move(x + y + a);
+      Fright.move(x - y + a);
+      Bleft.move(-x + y + a);
+      Bright.move(-x - y + a);
+
+    if(Open_button && !buttonLstO && !Test_button){
+      motor1.move_relative(-100, 127);
+    }
+
+    if(Open_button && Test_button && !buttonLstO && !buttonLstT){
+      Fleft.move(127);
+      Fright.move(127);
+      Bright.move(127);
+      Bleft.move(127);
+    }
+
+    buttonLstT = Test_button;
+    buttonLstO = Open_button;
+
   }
 }
