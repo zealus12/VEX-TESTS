@@ -1,0 +1,60 @@
+#include "main.h"
+#include <iostream>
+#include <cmath>
+using namespace pros;
+#define PORT_TOPL 1
+#define PORT_BOTTOML 2
+#define PORT_TOPR 3
+#define PORT_BOTTOMR 4
+#define PORT_TOPB 5
+#define PORT_BOTTOMB 6
+
+
+
+
+using namespace pros;
+void opcontrol() {
+
+	double Bigx = 0;
+	double Bigy = 0;
+	double Thi = 0;
+	double distance = 16;
+	double Theta;
+	double Rr;
+	double Rl;
+	double Smallx;
+	double Smally;
+	double Yy;
+	double Yx;
+	double Xy;
+	double Xx;
+	double h;
+	double l;
+	double r;
+	ADIEncoder leftencoder (PORT_TOPL, PORT_BOTTOML, false);
+	ADIEncoder rightencoder (PORT_TOPR, PORT_BOTTOMR, false);
+	//lcd::initialize();
+	//pros:: ADIEncoder backencoder (PORT_TOPB, PORT_BOTTOMB, false);
+
+	leftencoder.reset(); rightencoder.reset(); //backencoder.reset();
+	while (true) {
+		//lcd::clear();
+		l = leftencoder.get_value() / 360 *(2.75*M_PI);
+		r = rightencoder.get_value() / 360 *(2.75*M_PI);
+		Theta = (l-r)/distance;
+		Rr = r/Theta;
+		Rl = Rr + distance;
+		h = (2 * Rr + distance) * sin(Theta/2);
+		Smally = h*cos(Theta/2);
+		Smallx = h*sin(Theta/2);
+		Yy += Smally * sin(Theta);
+		Yx += Smally * cos(Theta);
+		Xx += Smallx * sin(Theta);
+		Xy += Smallx * cos(Theta);
+		Thi += Theta;
+		delay(10);
+		lcd::print(0, "Bigx: %f\n", Bigx);
+		lcd::print(1, "Bigy: %f\n", Bigy);
+		lcd::print(2, "Thi: %f\n", Thi);
+		}
+}
